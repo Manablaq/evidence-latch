@@ -9,6 +9,16 @@ SATISFIED = "SATISFIED"
 NOT_SATISFIED = "NOT_SATISFIED"
 INDETERMINATE = "INDETERMINATE"
 PENDING = "PENDING"
+SOURCE_HTTP = "SOURCE_HTTP"
+SOURCE_SIZE = "SOURCE_SIZE"
+SOURCE_UTF8 = "SOURCE_UTF8"
+MODEL_NOT_OBJECT = "MODEL_NOT_OBJECT"
+MODEL_KEYS = "MODEL_KEYS"
+MODEL_VERDICT = "MODEL_VERDICT"
+VERDICTS = (SATISFIED, NOT_SATISFIED, INDETERMINATE)
+SOURCE_ERRORS = (SOURCE_HTTP, SOURCE_SIZE, SOURCE_UTF8)
+MODEL_ERRORS = (MODEL_NOT_OBJECT, MODEL_KEYS, MODEL_VERDICT)
+BLOCK_RESULTS = VERDICTS + SOURCE_ERRORS + MODEL_ERRORS
 RAW_GITHUB = "https://raw.githubusercontent.com/"
 SAFE_SEGMENT_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
 HEX_CHARS = "0123456789abcdef"
@@ -87,13 +97,13 @@ class EvidenceLatch(gl.Contract):
         def classify() -> str:
             response = gl.nondet.web.get(source_url)
             if response.status != 200:
-                raise gl.vm.UserError("SOURCE_HTTP")
+                return SOURCE_HTTP
             if response.body is None or not 1 <= len(response.body) <= 8192:
-                raise gl.vm.UserError("SOURCE_SIZE")
+                return SOURCE_SIZE
             try:
                 source_text = response.body.decode("utf-8")
             except UnicodeDecodeError:
-                raise gl.vm.UserError("SOURCE_UTF8")
+                return SOURCE_UTF8
 
             prompt = f"""
 EVIDENCE_LATCH_V1
@@ -119,12 +129,12 @@ SOURCE_JSON_STRING:
 """
             result = gl.nondet.exec_prompt(prompt, response_format="json")
             if not isinstance(result, dict):
-                raise gl.vm.UserError("MODEL_NOT_OBJECT")
+                return MODEL_NOT_OBJECT
             if len(result) != 1 or "verdict" not in result:
-                raise gl.vm.UserError("MODEL_KEYS")
+                return MODEL_KEYS
             verdict = result["verdict"]
-            if verdict not in (SATISFIED, NOT_SATISFIED, INDETERMINATE):
-                raise gl.vm.UserError("MODEL_VERDICT")
+            if verdict not in VERDICTS:
+                return MODEL_VERDICT
             return verdict
 
         def validator_fn(leader_result) -> bool:
@@ -132,14 +142,19 @@ SOURCE_JSON_STRING:
                 return False
             try:
                 leader_verdict = leader_result.calldata
-                if leader_verdict not in (SATISFIED, NOT_SATISFIED, INDETERMINATE):
+                if leader_verdict not in BLOCK_RESULTS:
                     return False
                 return leader_verdict == classify()
             except (TypeError, ValueError, gl.vm.UserError):
                 return False
 
         verdict = gl.vm.run_nondet_unsafe(classify, validator_fn)
-        if verdict not in (SATISFIED, NOT_SATISFIED, INDETERMINATE):
+        if verdict in SOURCE_ERRORS or verdict in MODEL_ERRORS:
+            # An agreed failure becomes a deterministic user error. This avoids
+            # validators disagreeing merely because the leader raised inside
+            # the non-deterministic block.
+            raise gl.vm.UserError(verdict)
+        if verdict not in VERDICTS:
             raise gl.vm.UserError("CONSENSUS_VERDICT")
         self.verdict = verdict
         self.resolved = True

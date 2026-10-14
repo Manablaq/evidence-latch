@@ -85,6 +85,7 @@ def test_invalid_model_output_rolls_back(direct_vm, direct_deploy, payload, erro
         contract.adjudicate()
     assert contract.get_resolved() is False
     assert contract.get_verdict() == "PENDING"
+    assert direct_vm.run_validator() is True
 
 
 @pytest.mark.parametrize(
@@ -105,6 +106,7 @@ def test_unavailable_or_invalid_source_rolls_back(
         contract.adjudicate()
     assert contract.get_resolved() is False
     assert contract.get_verdict() == "PENDING"
+    assert direct_vm.run_validator() is True
 
 
 @pytest.mark.parametrize(

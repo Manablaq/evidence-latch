@@ -4,6 +4,8 @@ EvidenceLatch is a standalone GenLayer intelligent contract that checks one publ
 
 The contract is intended as a small acceptance-decision primitive for public deliverables. It does **not** prove authorship, factual truth, legal compliance, or that work exists outside the linked document. It does not hold funds or release payment.
 
+Bradbury submission deployment: [`0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9`](https://explorer-bradbury.genlayer.com/address/0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9). The [`SATISFIED` live transaction](https://explorer-bradbury.genlayer.com/tx/0xfaa48cc436096e8d9fa14868860e87062d52628792fd007693c0070531a1fb0e) and tests for the other verdicts, duplicate calls, and missing evidence are recorded in [`DEPLOYMENT.md`](DEPLOYMENT.md). **Check finality before relying on a receipt:** acceptance alone remains provisional. [`VERIFY.md`](VERIFY.md) provides read-only source and receipt checks.
+
 ## Decision and state transition
 
 | Before adjudication | Consensus result | Final state |
@@ -41,4 +43,4 @@ python3.12 -m venv .venv
 GENVM_VERSION=v0.3.0-rc4 .venv/bin/pytest tests/ -q
 ```
 
-The direct-mode tests mock web and model responses. They check control flow, state persistence/rollback, validator disagreement, response schema, URL restrictions, and one-shot behavior. They do not prove live network behavior or model accuracy. See [`SECURITY.md`](SECURITY.md) for limitations. Live deployment and transaction evidence will be documented in [`DEPLOYMENT.md`](DEPLOYMENT.md) once finalized.
+The direct-mode tests mock web and model responses. They check control flow, state persistence/rollback, validator disagreement, response schema, URL restrictions, and one-shot behavior. They do not prove live network behavior or model accuracy. CI also runs GenVM lint, semantic validation, and type checks; see the [workflow runs](https://github.com/Manablaq/evidence-latch/actions/workflows/tests.yml). See [`SECURITY.md`](SECURITY.md) for limitations and [`DEPLOYMENT.md`](DEPLOYMENT.md) for live transaction evidence.

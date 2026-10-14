@@ -1,6 +1,6 @@
 # Portal submission — Intelligent Contract
 
-**Hold submission until Bradbury finality checks pass.** The corrected-source transactions have successful consensus decisions, but `ACCEPTED` is provisional. The signed-in Portal's exact required fields and steward decision cannot be verified from public pages.
+**Ready for Portal submission based on verified on-chain evidence as of 18:19 UTC, 14 October 2026.** The submission deployment and verdict are `FINALIZED` with successful execution, the finalized deployed source matches the repository, and all documented behavior cases have finalized. The signed-in Portal's exact private rules and a steward's decision cannot be guaranteed from public evidence.
 
 Suggested contribution date: `14/10/2026`. Suggested title: **EvidenceLatch — Consensus-Gated Review of Immutable Public Evidence**.
 

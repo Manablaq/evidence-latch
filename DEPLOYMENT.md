@@ -1,5 +1,7 @@
 # Bradbury deployment and live tests
 
+**Historical v2 record, superseded by the [16 October hardened live audit](LIVE_AUDIT_2026-10-16.md).** The address below does not enforce an expected SHA-256 digest of fetched evidence and should not be submitted. The following remains for transparent audit history.
+
 Network: GenLayer Bradbury, chain ID `4221`, RPC `https://rpc-bradbury.genlayer.com`. Deployer: `0x5bb49021001200fe8156a81c7fcf097e535e7181`. All transactions below were sent on 14 October 2026.
 
 The **submission contract** is [`0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9`](https://explorer-bradbury.genlayer.com/address/0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9). It fixes this criterion:

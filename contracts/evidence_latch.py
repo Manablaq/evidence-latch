@@ -1,5 +1,6 @@
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
+import hashlib
 import json
 
 from genlayer import *
@@ -12,11 +13,12 @@ PENDING = "PENDING"
 SOURCE_HTTP = "SOURCE_HTTP"
 SOURCE_SIZE = "SOURCE_SIZE"
 SOURCE_UTF8 = "SOURCE_UTF8"
+SOURCE_HASH = "SOURCE_HASH"
 MODEL_NOT_OBJECT = "MODEL_NOT_OBJECT"
 MODEL_KEYS = "MODEL_KEYS"
 MODEL_VERDICT = "MODEL_VERDICT"
 VERDICTS = (SATISFIED, NOT_SATISFIED, INDETERMINATE)
-SOURCE_ERRORS = (SOURCE_HTTP, SOURCE_SIZE, SOURCE_UTF8)
+SOURCE_ERRORS = (SOURCE_HTTP, SOURCE_SIZE, SOURCE_UTF8, SOURCE_HASH)
 MODEL_ERRORS = (MODEL_NOT_OBJECT, MODEL_KEYS, MODEL_VERDICT)
 BLOCK_RESULTS = VERDICTS + SOURCE_ERRORS + MODEL_ERRORS
 RAW_GITHUB = "https://raw.githubusercontent.com/"
@@ -29,10 +31,11 @@ class EvidenceLatch(gl.Contract):
 
     criterion: str
     source_url: str
+    source_sha256: str
     resolved: bool
     verdict: str
 
-    def __init__(self, criterion: str, source_url: str) -> None:
+    def __init__(self, criterion: str, source_url: str, source_sha256: str) -> None:
         if not isinstance(criterion, str):
             raise gl.vm.UserError("CRITERION_TYPE")
         if not 20 <= len(criterion) <= 256:
@@ -63,8 +66,14 @@ class EvidenceLatch(gl.Contract):
         if not parts[-1].endswith(".md"):
             raise gl.vm.UserError("SOURCE_EXTENSION")
 
+        if not isinstance(source_sha256, str):
+            raise gl.vm.UserError("SOURCE_HASH_TYPE")
+        if len(source_sha256) != 64 or any(char not in HEX_CHARS for char in source_sha256):
+            raise gl.vm.UserError("SOURCE_HASH_FORMAT")
+
         self.criterion = criterion
         self.source_url = source_url
+        self.source_sha256 = source_sha256
         self.resolved = False
         self.verdict = PENDING
 
@@ -75,6 +84,10 @@ class EvidenceLatch(gl.Contract):
     @gl.public.view
     def get_source_url(self) -> str:
         return self.source_url
+
+    @gl.public.view
+    def get_source_sha256(self) -> str:
+        return self.source_sha256
 
     @gl.public.view
     def get_resolved(self) -> bool:
@@ -93,6 +106,7 @@ class EvidenceLatch(gl.Contract):
         # happen only after validator consensus accepts its bounded verdict.
         criterion = self.criterion
         source_url = self.source_url
+        source_sha256 = self.source_sha256
 
         def classify() -> str:
             response = gl.nondet.web.get(source_url)
@@ -104,6 +118,8 @@ class EvidenceLatch(gl.Contract):
                 source_text = response.body.decode("utf-8")
             except UnicodeDecodeError:
                 return SOURCE_UTF8
+            if hashlib.sha256(response.body).hexdigest() != source_sha256:
+                return SOURCE_HASH
 
             prompt = f"""
 EVIDENCE_LATCH_V1

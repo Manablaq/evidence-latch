@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -15,12 +16,13 @@ SOURCE = (
     "The service sends signed webhooks. Failed deliveries retry up to three "
     "times with exponential backoff. Delivery logs are kept for 30 days."
 )
+SOURCE_SHA256 = hashlib.sha256(SOURCE.encode("utf-8")).hexdigest()
 
 
-def deploy(direct_vm, direct_deploy, criterion=CRITERION, source_url=URL):
+def deploy(direct_vm, direct_deploy, criterion=CRITERION, source_url=URL, source_sha256=SOURCE_SHA256):
     direct_vm.strict_mocks = True
     direct_vm.check_pickling = True
-    return direct_deploy(str(CONTRACT), criterion, source_url, sdk_version="v0.2.16")
+    return direct_deploy(str(CONTRACT), criterion, source_url, source_sha256, sdk_version="v0.2.16")
 
 
 def mock_source_and_verdict(direct_vm, verdict, body=SOURCE):
@@ -34,6 +36,7 @@ def test_initial_state_and_immutable_configuration(direct_vm, direct_deploy):
     contract = deploy(direct_vm, direct_deploy)
     assert contract.get_criterion() == CRITERION
     assert contract.get_source_url() == URL
+    assert contract.get_source_sha256() == SOURCE_SHA256
     assert contract.get_resolved() is False
     assert contract.get_verdict() == "PENDING"
 
@@ -109,6 +112,19 @@ def test_unavailable_or_invalid_source_rolls_back(
     assert direct_vm.run_validator() is True
 
 
+def test_source_hash_mismatch_rolls_back(direct_vm, direct_deploy):
+    contract = deploy(direct_vm, direct_deploy)
+    direct_vm.mock_web(
+        r"raw\.githubusercontent\.com",
+        {"status": 200, "body": "The document was replaced."},
+    )
+    with direct_vm.expect_revert("SOURCE_HASH"):
+        contract.adjudicate()
+    assert contract.get_resolved() is False
+    assert contract.get_verdict() == "PENDING"
+    assert direct_vm.run_validator() is True
+
+
 @pytest.mark.parametrize(
     "criterion,error",
     [
@@ -141,3 +157,17 @@ def test_rejects_invalid_criterion(direct_vm, direct_deploy, criterion, error):
 def test_rejects_unsafe_or_mutable_source_url(direct_vm, direct_deploy, source_url, error):
     with direct_vm.expect_revert(error):
         deploy(direct_vm, direct_deploy, source_url=source_url)
+
+
+@pytest.mark.parametrize(
+    "source_sha256,error",
+    [
+        ("0" * 63, "SOURCE_HASH_FORMAT"),
+        ("A" * 64, "SOURCE_HASH_FORMAT"),
+        ("g" * 64, "SOURCE_HASH_FORMAT"),
+        (None, "SOURCE_HASH_TYPE"),
+    ],
+)
+def test_rejects_invalid_source_hash(direct_vm, direct_deploy, source_sha256, error):
+    with direct_vm.expect_revert(error):
+        deploy(direct_vm, direct_deploy, source_sha256=source_sha256)

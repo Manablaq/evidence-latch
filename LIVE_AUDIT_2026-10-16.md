@@ -2,13 +2,13 @@
 
 Network: Bradbury, chain ID `4221`, RPC `https://rpc-bradbury.genlayer.com`. Deployer: `0x5bb49021001200fe8156a81c7fcf097e535e7181`. Source: [`contracts/evidence_latch.py`](contracts/evidence_latch.py), SHA-256 `671399b0828f6a0a68b4a943b3054d9f515e880b24dea4af7d6f1f5dda1dfbcf` (6,717 bytes). The candidate contract is [`0x646564F618f500594F2F3BA1Ed2683DD80909585`](https://explorer-bradbury.genlayer.com/address/0x646564F618f500594F2F3BA1Ed2683DD80909585).
 
-**Submission hold:** the transactions in this section were `ACCEPTED` when sent, not yet checked as `FINALIZED`. `ACCEPTED` is provisional. A finalized error is still an error, not a successful verdict. [`VERIFY.md`](VERIFY.md) provides independent read-only checks.
+**Finality verified:** on 16 October 2026, the read-only [`scripts/verify_bradbury.py`](scripts/verify_bradbury.py) check passed against the live RPC: all 21 intended transactions below were `FINALIZED` with their expected execution codes; all eight deployments matched the audited source SHA-256; the finalized getters returned the expected verdicts and resolution flags; and the pinned evidence digest matched. The one separate leader-timeout attempt was not counted as a success. A finalized error is still an error, not a successful verdict. [`VERIFY.md`](VERIFY.md) provides reproducible checks. **Submission remains on hold under the request for zero weaknesses, which no finite test suite can establish.**
 
 The candidate fixes the criterion “The webhook design uses HMAC-SHA256 signatures and retries failed deliveries up to three times with exponential backoff.” Its source is the [commit-pinned Markdown artifact](https://github.com/Manablaq/evidence-latch/blob/3be9be9c360823e9a9479c1254098c5fd7d8f811/evidence/delivery-plan.md), with expected file SHA-256 `4d69f65ad6cda4574792aad9fb9b75dc928fc6f48fe88d54b34149e6fd9678d7` stored at deployment.
 
 ## Live behavior matrix
 
-Each deployment and write below was an actual Bradbury transaction. The two reads per contract were live RPC calls, not transactions. For expected rejections, `FINISHED_WITH_ERROR` and unchanged `PENDING`/`false` state are the desired outcomes.
+Each deployment and write below was an actual Bradbury transaction. The getter and raw-state reads were live RPC calls, not transactions. For expected rejections, a finalized agreed user error and unchanged `PENDING`/`false` state are the desired outcomes.
 
 | Case | Address | Deployment transaction | Write transaction | Observed write result and state |
 | --- | --- | --- | --- | --- |
@@ -36,6 +36,6 @@ These are **failed deployments**, not working contracts. The CLI still printed �
 
 ## What the audit does and does not prove
 
-The public [CI workflow](https://github.com/Manablaq/evidence-latch/actions/workflows/tests.yml) runs 33 direct-mode tests plus lint and type checks. The direct suite covers malformed model output, invalid UTF-8, validator disagreement, additional constructor boundaries, and rollback. Those behaviors cannot all be forced reliably against Bradbury's real, independently operated model and web providers; they are **not** claimed as live-transaction successes. The prompt-injection fixture is one adversarial example, not proof of general resistance. Provider timeouts remain possible despite successful retries. See [`SECURITY.md`](SECURITY.md).
+The public [CI workflow](https://github.com/Manablaq/evidence-latch/actions/workflows/tests.yml) runs 33 direct-mode contract tests and five offline verifier tests, plus lint and type checks. The direct suite covers malformed model output, invalid UTF-8, validator disagreement, additional constructor boundaries, and rollback. Those behaviors cannot all be forced reliably against Bradbury's real, independently operated model and web providers; they are **not** claimed as live-transaction successes. The prompt-injection fixture is one adversarial example, not proof of general resistance. Provider timeouts remain possible despite successful retries. See [`SECURITY.md`](SECURITY.md).
 
 The 14 October no-digest deployment and its finalized transactions remain available in the [historical v2 deployment record](https://github.com/Manablaq/evidence-latch/blob/9623ac053f35f1c4e2dd0e623462a2683d5a1294/DEPLOYMENT.md). Do not submit its address. The earlier v1 error-handling bug is documented there as well.

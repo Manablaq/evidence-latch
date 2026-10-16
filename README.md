@@ -4,7 +4,7 @@ EvidenceLatch is a standalone GenLayer intelligent contract that checks one publ
 
 The contract is intended as a small acceptance-decision primitive for public deliverables. It does **not** prove authorship, factual truth, legal compliance, or that work exists outside the linked document. It does not hold funds or release payment.
 
-**Submission on hold pending finality of the 16 October hardening audit.** The current Bradbury candidate is [`0x646564F618f500594F2F3BA1Ed2683DD80909585`](https://explorer-bradbury.genlayer.com/address/0x646564F618f500594F2F3BA1Ed2683DD80909585). The prior [`0x312BA099…`](https://explorer-bradbury.genlayer.com/address/0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9) address is a historical test, not the intended submission address. The [current live audit](LIVE_AUDIT_2026-10-16.md) records actual transactions, failed attempts, and the tests that cannot be reproduced reliably on-chain.
+**Live finality verified; submission held to the requested zero-weakness standard.** The current Bradbury candidate is [`0x646564F618f500594F2F3BA1Ed2683DD80909585`](https://explorer-bradbury.genlayer.com/address/0x646564F618f500594F2F3BA1Ed2683DD80909585). The prior [`0x312BA099…`](https://explorer-bradbury.genlayer.com/address/0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9) address is a historical test, not the intended submission address. The [current live audit](LIVE_AUDIT_2026-10-16.md) records 21 finalized intended transactions, a separate leader timeout, and tests that cannot be reproduced reliably on-chain. No finite audit can certify that an LLM-based contract has zero weaknesses.
 
 ## Decision and state transition
 
@@ -44,4 +44,4 @@ python3.12 -m venv .venv
 GENVM_VERSION=v0.3.0-rc4 .venv/bin/pytest tests/ -q
 ```
 
-The 33 direct-mode tests mock web and model responses. They check control flow, state persistence/rollback, validator disagreement, response schema, URL and digest restrictions, and one-shot behavior. They do not prove live network behavior or model accuracy. CI also runs GenVM lint, semantic validation, and type checks; see the [workflow runs](https://github.com/Manablaq/evidence-latch/actions/workflows/tests.yml). See [`SECURITY.md`](SECURITY.md) for limitations and the [current live audit](LIVE_AUDIT_2026-10-16.md) for transaction evidence.
+The 33 direct-mode contract tests mock web and model responses. Five additional offline tests check the read-only verifier. The contract tests check control flow, state persistence/rollback, validator disagreement, response schema, URL and digest restrictions, and one-shot behavior. They do not prove live network behavior or model accuracy. CI also runs GenVM lint, semantic validation, and type checks; see the [workflow runs](https://github.com/Manablaq/evidence-latch/actions/workflows/tests.yml). See [`SECURITY.md`](SECURITY.md) for limitations and the [current live audit](LIVE_AUDIT_2026-10-16.md) for transaction evidence.

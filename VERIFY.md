@@ -2,6 +2,8 @@
 
 These checks are read-only; they do not sign a transaction or require testnet GEN. Use the hardened candidate address `0x646564F618f500594F2F3BA1Ed2683DD80909585` on Bradbury (chain ID `4221`). The expected contract-source SHA-256 is `671399b0828f6a0a68b4a943b3054d9f515e880b24dea4af7d6f1f5dda1dfbcf`. **Do not submit while [`SUBMISSION.md`](SUBMISSION.md) says hold.**
 
+For the complete automated check, run `python3.12 -u scripts/verify_bradbury.py` from the repository root. It checks 21 finalized receipts and their execution codes, all eight deployed source hashes and finalized verdict/resolution getters, the primary configuration getters, and the pinned evidence digest. It signs and sends nothing. A nonzero exit is a failed audit; a transient RPC error is not a passing result.
+
 ## Compare deployed and repository source
 
 From the repository root on macOS, with `curl`, `jq`, `base64`, and `shasum`:

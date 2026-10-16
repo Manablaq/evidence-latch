@@ -1,6 +1,6 @@
 # Portal submission — Intelligent Contract
 
-**Ready for Portal submission based on verified on-chain evidence as of 18:19 UTC, 14 October 2026.** The submission deployment and verdict are `FINALIZED` with successful execution, the finalized deployed source matches the repository, and all documented behavior cases have finalized. The signed-in Portal's exact private rules and a steward's decision cannot be guaranteed from public evidence.
+**Submission on hold as of 16 October 2026.** The earlier deployment is finalized, but a new audit found that it does not verify a SHA-256 digest of the fetched file bytes. A hardened build and expanded live-transaction matrix are in progress. Do not use the older address or paste-ready text below for submission until this page is updated with finalized evidence for the hardened build. The signed-in Portal's exact private rules and a steward's decision also cannot be guaranteed from public evidence.
 
 Suggested contribution date: `14/10/2026`. Suggested title: **EvidenceLatch — Consensus-Gated Review of Immutable Public Evidence**.
 

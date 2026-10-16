@@ -4,7 +4,7 @@ EvidenceLatch is a standalone GenLayer intelligent contract that checks one publ
 
 The contract is intended as a small acceptance-decision primitive for public deliverables. It does **not** prove authorship, factual truth, legal compliance, or that work exists outside the linked document. It does not hold funds or release payment.
 
-Bradbury submission deployment: [`0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9`](https://explorer-bradbury.genlayer.com/address/0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9). The [`SATISFIED` live transaction](https://explorer-bradbury.genlayer.com/tx/0xfaa48cc436096e8d9fa14868860e87062d52628792fd007693c0070531a1fb0e) and tests for the other verdicts, duplicate calls, and missing evidence are recorded in [`DEPLOYMENT.md`](DEPLOYMENT.md). **Check finality before relying on a receipt:** acceptance alone remains provisional. [`VERIFY.md`](VERIFY.md) provides read-only source and receipt checks.
+**Submission on hold during the 16 October hardening audit.** The prior Bradbury deployment [`0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9`](https://explorer-bradbury.genlayer.com/address/0x312BA09952d43cB6BDa054D29b1A1474fCbB90F9) is a historical test, not the intended submission address. Its finalized transactions are recorded in [`DEPLOYMENT.md`](DEPLOYMENT.md). A source-digest check and expanded live tests are being completed before a new address can be recommended.
 
 ## Decision and state transition
 
